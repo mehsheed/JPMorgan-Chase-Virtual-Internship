@@ -1,0 +1,109 @@
+From da8f2423c62f28e0e4737d2a41070f1e66d88bef Mon Sep 17 00:00:00 2001
+From: mehsheed <mehsheed59@gmail.com>
+Date: Mon, 31 May 2021 23:02:19 +0530
+Subject: [PATCH] Create Patch File
+
+---
+ __pycache__/client3.cpython-39.pyc | Bin 0 -> 1125 bytes
+ client3.py                         |  11 ++++++++---
+ client_test.py                     |  14 ++++++--------
+ 3 files changed, 14 insertions(+), 11 deletions(-)
+ create mode 100644 __pycache__/client3.cpython-39.pyc
+
+diff --git a/__pycache__/client3.cpython-39.pyc b/__pycache__/client3.cpython-39.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..418b284479e8817937f0d855a331db17a00e32c1
+GIT binary patch
+literal 1125
+zcmYjQPj3@B6t`zQlS!MDLjPvD7$gLdDDA4!3Pmgn+p<UqssiGGmDTJtercwi%%rxn
+zq9HwHKS+Ay1MGQkd*CDZx+m^?;=~)Lt+4g}`i=eG@4ZRt^*Ms;pW5Gle6AAmUuk^5
+z&_|vi>Cea{ku)QMI_U||NniL*GQp%L0_lrTG8z0uL`8<Of--`tjE+6^FU-L_gcCZU
+zyX5x|q6Yr74)kbYdJTf<BCshtC+GB>POq0z+(?O7f*TmSC6=KA%M;pWVnwWqHL(us
+zummfQ2sC6BR$vv@V7<#$$%ImJ@&Ubb5W$k1ZxH0Q2AOylXD=mvOPcjBSP$77-Rc=L
+zXl-t0MJLI6g*L5+TMxH3PlljQe@W%fAJ5YNDIp!Cs}-Qekam#t6J%q=r9sZ9DK)P_
+zq>t~>Gtb%V%J#?J*k2<uxJk~~n3mR<bs1(8j#_+Q6>``Co@5y>y4>`D=KvBU|1-&k
+zpt&jdA>^PEgF##-CK(iIZnzD!DLTitVv0e0kV+d2RN8@=o#^8)9;Vo&Ht1$WVw!;s
+zPKJd6Rl02zKZs}XRg9gfs;ur4QS&Ii{<PC-ztf;}TPJ<!wRb@u<4f%q`>%F340L)M
+z20z^Rabs}0-R@*5<YxQ9;MCR*!R%s^`z}emNxMn&Bf5yYMpYesoid5bRq7=<T$fQ9
+zQ%P}dYSMd)$d2hvf>`;Z+x$5gjyR-6iImGePI!{b3;lqrvR`|yfTkxZ7a^C*fjgM7
+z8V1@3bA40Z*F;N)$OwxlqiVsO#&JJM^Ee*eeO)3a`5ny@!|x$>tvmWY$NHUg&!E;E
+zMea6?v;NaxcdWnr?6>9*VqvJVEIoLj0Ov~^5zcJOOxg#*j&zZWP+=WKUj(n;J$v)s
+z(mjXMRU$d|AdW3dv4J+g*h8>1wgI+QYEikoxq>$r1ITUIEmS`-mMKW24PEE82wkRH
+zMOdDj16BU#s%((!y&Iw2d<RoG3TlScqdpF529H<Jr8%;Qy6rQcc~KR&zeu^y(7TAV
+G>VE?i(;E~3
+
+literal 0
+HcmV?d00001
+
+diff --git a/client3.py b/client3.py
+index f1771c3..d50bb63 100644
+--- a/client3.py
++++ b/client3.py
+@@ -35,14 +35,16 @@ def getDataPoint(quote):
+ 	stock = quote['stock']
+ 	bid_price = float(quote['top_bid']['price'])
+ 	ask_price = float(quote['top_ask']['price'])
+-	price = bid_price
++	price = (bid_price + ask_price)/2
+ 	return stock, bid_price, ask_price, price
+ 
+ def getRatio(price_a, price_b):
+ 	""" Get ratio of price_a and price_b """
+ 	""" ------------- Update this function ------------- """
+ 	""" Also create some unit tests for this function in client_test.py """
+-	return 1
++	if(price_b == 0):
++		return 
++	return price_a/price_b
+ 
+ # Main
+ if __name__ == "__main__":
+@@ -52,8 +54,11 @@ if __name__ == "__main__":
+ 		quotes = json.loads(urllib.request.urlopen(QUERY.format(random.random())).read())
+ 
+ 		""" ----------- Update to get the ratio --------------- """
++		prices = {}
+ 		for quote in quotes:
+ 			stock, bid_price, ask_price, price = getDataPoint(quote)
++			prices[stock] = price
+ 			print ("Quoted %s at (bid:%s, ask:%s, price:%s)" % (stock, bid_price, ask_price, price))
++			 
+ 
+-		print ("Ratio %s" % getRatio(price, price))
++		print ("Ratio %s" % getRatio(prices['ABC'], prices['DEF']))
+diff --git a/client_test.py b/client_test.py
+index af2bf26..e5e3591 100644
+--- a/client_test.py
++++ b/client_test.py
+@@ -1,5 +1,6 @@
+ import unittest
+-from client3 import getDataPoint
++import client3
++from client3 import getDataPoint,getRatio
+ 
+ class ClientTest(unittest.TestCase):
+   def test_getDataPoint_calculatePrice(self):
+@@ -8,16 +9,13 @@ class ClientTest(unittest.TestCase):
+       {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
+     ]
+     """ ------------ Add the assertion below ------------ """
++    for quote in quotes:
++      self.assertEqual(getDataPoint(quote),(quote['stock'],quote['top_bid']['price'],quote['top_ask'][price],(quote['top_bid'][price]+quote['top_ask']['price'])/2))
+ 
+-  def test_getDataPoint_calculatePriceBidGreaterThanAsk(self):
+-    quotes = [
+-      {'top_ask': {'price': 119.2, 'size': 36}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 120.48, 'size': 109}, 'id': '0.109974697771', 'stock': 'ABC'},
+-      {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
+-    ]
+-    """ ------------ Add the assertion below ------------ """
++ 
+ 
+ 
+-  """ ------------ Add more unit tests ------------ """
++  
+ 
+ 
+ 
+-- 
+2.31.1.windows.1
+
